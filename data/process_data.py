@@ -3,11 +3,28 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """
+    Loads data and create a pandas dataframe
+    Args: Two arguments needed. The path of the messages and categories files are stored.
+    Output: One dataframe that consist of the merged data from both files.
+    """
+    
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories)
 
-    categories = categories.categories.str.split(";",expand=True)
+    return df
+
+
+def clean_data(df):
+    """
+    Cleans the inputted dataframe by splitting the categories, converts values to binary, 
+    drop duplicates and removing unnecessary columns.
+    Argument: A dataframe
+    Output: A cleaned Dataframe
+
+    """
+    categories = df.categories.str.split(";",expand=True)
 
     # select the first row of the categories dataframe
     row = categories.iloc[0]
@@ -21,28 +38,32 @@ def load_data(messages_filepath, categories_filepath):
         categories[column] = categories[column].apply(lambda x: x[-1:])
 
         # convert column from string to numeric
-        categories[column] = categories[column].astype(int)
+        categories[column] = categories[column].astype("int32")
 
     # drop the original categories column from `df`
     df.drop("categories",axis=1, inplace= True)
 
     # concatenate the original dataframe with the new `categories` dataframe
-    df = pd.concat([df, categories],axis=1)
-
-    return df
-
-
-def clean_data(df):
+    df = pd.concat([df, categories],axis=1, sort=False)
     df.drop_duplicates(inplace = True)
+
     return df
 
 
 def save_data(df, database_filename):
+    """
+    Stores the clean data into a SQLite database in the specified database file path.
+    Args: Cleaned Dataframe and database's file name
+    """
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('messages', engine, index=False, if_exists = 'replace')
 
 
 def main():
+    """ Load, clean and save data using the initiated functions before and
+    providing logs for each step.
+    """
+    
     if len(sys.argv) == 4:
 
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]

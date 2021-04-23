@@ -16,6 +16,12 @@ from sklearn.base import TransformerMixin, BaseEstimator
 app = Flask(__name__)
 
 def tokenize(text):
+    """
+    Tokenize and cleaning each tokens
+    Args: Text to be tokenize
+    Output: List of cleaned tokens
+    """
+
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -55,9 +61,12 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
 @app.route('/')
 @app.route('/index')
 def index():
-    
-    # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
+   """
+   Creates three plotly visualizations
+   Args: None
+   Returns: Rendered webpage with plot graphs
+   """
+
     # data for plot1
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
@@ -68,6 +77,10 @@ def index():
     col_names = y.columns
     cat_values = y.sum().sort_values(ascending = False)
     cat_names = list(cat_values.index)
+
+    # data for plot3
+    top10cat = (cat_values/cat_values.sum()*100)[0:10]
+    top10cat_names = list(top10cat.index)
 
     
     # create visuals
@@ -108,7 +121,26 @@ def index():
                     'title': "Category"
                 }
             }
+        },
+        {
+            'data': [
+                Bar(
+                    x=top10cat_names,
+                    y=top10cat
+                )
+            ],
+
+            'layout': {
+                'title': "Top 10 Message's Categories Percentage",
+                'yaxis': {
+                    'title': "Percentage"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
         }
+ 
  
     ]
     

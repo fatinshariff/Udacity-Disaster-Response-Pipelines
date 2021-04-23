@@ -23,6 +23,18 @@ nltk.download(['punkt', 'wordnet'])
 
 # load data from database
 def load_data(database_filepath):
+    """ Load data from specified database path.
+    
+    Args:
+        database_filepath: Path to the database
+
+    Output:
+        X: Variables help to predict
+        y: Target variables
+        col_names: Column names of target variables
+
+    """
+
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql_table('messages', con= engine)
 
@@ -33,6 +45,15 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """ Uses a custom tokenize function using nltk to case normalize, lemmatize, and 
+    tokenize text.
+
+    Args:
+        text: Text to be tokenize
+
+    Output: List of cleaned tokenized words
+
+    """
     tokens = word_tokenize(text)
 
     # initiate lemmatizer
@@ -50,6 +71,17 @@ def tokenize(text):
 
 
 def build_model():
+    """ 
+    Pipeline to create a model. The data is vectorized and tfidf is performed first.
+    Custom transformer is also performed.
+    Classifier is defined.
+    Parameters is set uand unsing GridSearch to find the best parameter.
+    
+    Output:
+        cv: Final model that will be use to classify
+
+    """
+    
     pipeline = Pipeline([
     ('features', FeatureUnion([
 
@@ -61,24 +93,35 @@ def build_model():
         ('starting_verb', StartingVerbExtractor())
     ])),
 
-    ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ('clf', MultiOutputClassifier(AdaBoostClassifier()))
 ])
     
      # specify parameters for grid search
     parameters = {
         'features__text_pipeline__vect__ngram_range': ((1, 1), (1, 2)),
-        'features__text_pipeline__vect__max_df': (0.75, 1.0),
-        'features__text_pipeline__tfidf__use_idf': (True, False)
-
+        'features__text_pipeline__vect__max_df': (0.75, 1.0)
     }
 
     # create grid search object
-    cv = GridSearchCV(pipeline, param_grid = parameters, n_jobs= 4, verbose = 2)
+    cv = GridSearchCV(pipeline, param_grid = parameters, n_jobs= 8, cv = 3, verbose = 2)
 
     return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    Evaluating model by their f1 score,precision and recall for each category.
+
+    Args:
+        model: Final model
+        X_test: Test set for predicting
+        Y_test: Target variable for test set 
+        category_names: Target variable's names
+
+    Output:
+        F1 score, precision and recall for each category
+
+    """
 
     #predict on test data
     y_pred = model.predict(X_test)
@@ -93,11 +136,25 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """
+    Save model in a pickle file
+
+    Args:
+        model: Final model
+        model_filepath: pickle file path
+
+    """
+
     with open(model_filepath , 'wb') as file:
         pickle.dump(model, file)
 
 
 def main():
+    """
+    Perform model building, training, predicting, evaluating and saving
+
+    """
+
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
