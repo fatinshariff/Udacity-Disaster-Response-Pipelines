@@ -60,12 +60,13 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
+
 def index():
-   """
-   Creates three plotly visualizations
-   Args: None
-   Returns: Rendered webpage with plot graphs
-   """
+    """
+    Creates three plotly visualizations
+    Args: None
+    Returns: Rendered webpage with plot graphs
+    """
 
     # data for plot1
     genre_counts = df.groupby('genre').count()['message']
