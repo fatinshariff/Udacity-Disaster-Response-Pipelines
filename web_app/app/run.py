@@ -12,6 +12,7 @@ import joblib
 from sqlalchemy import create_engine
 from sklearn.base import TransformerMixin, BaseEstimator
 
+nltk.download(['punkt', 'wordnet'])
 
 app = Flask(__name__)
 
