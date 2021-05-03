@@ -1,32 +1,37 @@
 # Disaster Response Pipeline Project
 
-## Project Overview
+link: https://disaster-response-23.herokuapp.com
 
-Analyzing disaster data from Figure Eight to build a model for a web app that classify the disaster messages. In this web app, an emergency worker can input a new message and get classification results in several categories. The web app also display visualizations of the data. 
+## 1. Project Overview
 
-## File Description
+In this project, I'll apply data engineering to analyze disaster data from Figure Eight to build a model for an API that classifies disaster messages. Using this web app, an emergency worker can input a new message and get classification results in several categories. The web app also display visualizations of the data. 
 
-- app
-    - template
-        - master.html :  main page of web app
-        - go.html : classification result page of web app
-    - custom_transformer.py : customised transformer (StartingVerbExtractor)
-    - run.py : Flask file that runs app
+## 2. Project Components
 
-- data
-    - disaster_categories.csv : data to process 
-    - disaster_messages.csv : data to process
-    - process_data.py : read the dataset, clean the data, and then store it in a SQLite database
-    - InsertDatabaseName.db  : database to save clean data to
+There are three main components of this project:
 
-- models
-    - custom_transformer.py : customised transformer (StartingVerbExtractor)
-    - train_classifier.py : split the data into a training set and a test set. Then, using machine learning pipeline that uses NLTK, as well as scikit-learn's Pipeline and GridSearchCV, a final model will be outputted. It uses the message column to predict classifications for 36 categories (multi-output classification). Finally, the model is exported to a pickle file
-    - classifier.pkl  # saved model 
+### 2.1 ETL
 
+This is the pipeline for Extract, Transform and Load. 
+The file *data/process_data.py* include all the cleaning code that:
 
+- load messages and categories dataset
+- clean and merge both dataset
+- save in a SQLite database
 
-## How to run the web app :
+### 2.2 Machine Learning Pipeline
+
+File *disasterapp/train_classifier.py* contains machine learning pipeline that:
+
+- load data from SQL database
+- split the data into a training set and a test set
+- using machine learning pipeline to create model
+- The data is vectorised and tfidf is performed
+- Classifier is defined
+- Using GridSearch CV to find the best parameter
+- Saving the model in pickle file named *classifier.pkl*
+
+### 2.3 Flask Web App
 
 1. Run the following commands in the project's root directory to set up the database and model.
 
