@@ -19,6 +19,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,AdaBoostClassifier
 
+from utils import tokenize
 nltk.download(['punkt', 'wordnet'])
 
 # load data from database
@@ -44,32 +45,6 @@ def load_data(database_filepath):
     return X, y, col_names
 
 
-def tokenize(text):
-    """ Uses a custom tokenize function using nltk to case normalize, lemmatize, and 
-    tokenize text.
-
-    Args:
-        text: Text to be tokenize
-
-    Output: List of cleaned tokenized words
-
-    """
-    tokens = word_tokenize(text)
-
-    # initiate lemmatizer
-    lemmatizer = WordNetLemmatizer()
-
-    #iterate through each token
-    clean_tokens = []
-    for tok in tokens:
-
-        # lemmatize, normalize case, and remove leading/trailing white space
-        clean_tok = lemmatizer.lemmatize(tok.lower().strip())
-        clean_tokens.append(clean_tok)
-
-    return clean_tokens
-
-
 def build_model():
     """ 
     Pipeline to create a model. The data is vectorized and tfidf is performed first.
@@ -78,9 +53,7 @@ def build_model():
     Parameters is set uand unsing GridSearch to find the best parameter.
     
     Output:
-        cv: Final model that will be use to classify
-
-    """
+        cv: Final model that will be use to classify """
     
     pipeline = Pipeline([
     ('features', FeatureUnion([

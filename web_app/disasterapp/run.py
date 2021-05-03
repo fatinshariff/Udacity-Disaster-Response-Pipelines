@@ -1,13 +1,13 @@
 import json
 import plotly
 import pandas as pd
-from utils import tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 import joblib
 from sqlalchemy import create_engine
 from sklearn.base import TransformerMixin, BaseEstimator
+from utils import tokenize
 
 app = Flask(__name__)
 
@@ -16,7 +16,7 @@ engine = create_engine('sqlite:///data/DisasterResponse.db')
 df = pd.read_sql_table('messages', engine)
 
 # load model
-model = joblib.load("models/classifier.pkl")
+model = joblib.load("disasterapp/classifier.pkl")
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
 
